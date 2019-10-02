@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Contains cgov_content_lock.module.
+ */
+
+/**
+ * Implements hook_moderation_sidebar_alter().
+ */
+function cgov_content_lock_moderation_sidebar_alter(array &$build, $entity) {
+
+  $lock_service = \Drupal::service('content_lock');
+  if (!is_null($entity->id()) && $lock_service != NULL && $lock_service->isLockable($entity, "edit")) {
+    // fetchLock only verifies if a lock exists. It does not create a lock.
+    $lock = $lock_service->fetchLock($entity->id(), $entity->language()->getId());
+    // If content is currently locked by any user.
+    if ($lock != FALSE && is_object($lock)) {
+      $user = Drupal::currentUser();
+      // Currently locking by other user.
+      if ($lock->uid != $user->id()) {
+        $build['actions']['#attributes']['class'][] = "hidden";
+        $build['content_lock_message'] = [
+          '#markup' => t('<p>The content is currently being edited by another user. This is placeholder text can be changed.</p>'),
+          '#weight' => 11,
+        ];
+      }
+    }
+  }
+
+}

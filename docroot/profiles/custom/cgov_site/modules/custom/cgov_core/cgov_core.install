@@ -227,3 +227,23 @@ function cgov_core_update_8002() {
 
   $siteHelper->addRolePermissions($perms);
 }
+
+/**
+ * Enable cgov_content_lock module.
+ */
+function cgov_core_update_8003() {
+  // Get the helper service.
+  $modules = [
+    'content_lock',
+    'content_lock_timeout',
+    'conflict',
+  ];
+  \Drupal::service('module_installer')->install($modules);
+
+  $modules_custom = [
+    'cgov_content_lock',
+  ];
+
+  \Drupal::service('module_installer')->install($modules_custom);
+
+}
